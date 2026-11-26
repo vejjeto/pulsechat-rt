@@ -1,6 +1,6 @@
 # PulseChat RT
 
-[![CI](https://github.com/diego/pulsechat-rt/actions/workflows/ci.yml/badge.svg)](./.github/workflows/ci.yml)
+[![CI](https://github.com/vejjeto/pulsechat-rt/actions/workflows/ci.yml/badge.svg)](./.github/workflows/ci.yml)
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![WebSockets](https://img.shields.io/badge/WS-ws%20%2B%20noServer-0ea5e9)
 ![Drizzle ORM](https://img.shields.io/badge/Drizzle-SQLite%20WAL-10b981)
