@@ -8,6 +8,10 @@
 
 Plataforma standalone de mensajería bidireccional en tiempo real sobre un servidor unificado **Next.js 15 + `ws`** con contratos Zod discriminados, paginación por cursor compuesto `(createdAt, id)` y resiliencia de red con backoff exponencial.
 
+## Qué hace este proyecto
+
+**PulseChat RT** es un chat en tiempo real por salas usando WebSockets. Muestra usuarios conectados en vivo, entrega mensajes al instante con confirmación visual (`enviando` → `entregado ✓`), carga historial antiguo mediante paginación por cursor y se reconecta automáticamente si cae la red; además incluye una sala `#sandbox` con un bot (`@SyncBot`) y vista espejo para probar dos usuarios al mismo tiempo.
+
 - **Demo 1 clic**: [`/demo`](/demo) abre directamente la sala `#sandbox` con `@SyncBot` activo, vista espejo en vivo y envío optimista (`enviando` → `entregado ✓`).
 - **Entrada desde landing**: [`/`](/) permite personalizar el alias por pestaña (`sessionStorage`) y entrar como invitado a `/chat`.
 - **Observabilidad**: [`/api/health`](/api/health), [`/api/docs`](/api/docs) y [`/api/openapi.json`](/api/openapi.json) con errores RFC 7807 (`application/problem+json`) y `x-request-id`.
