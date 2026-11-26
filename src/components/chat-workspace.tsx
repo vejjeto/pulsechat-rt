@@ -1,7 +1,9 @@
 "use client";
 
 import { HealthBadge } from "@/components/health-badge";
+import { LanguageToggle } from "@/components/language-toggle";
 import { useToast } from "@/components/toast-provider";
+import { useLocale } from "@/lib/i18n";
 import { generateGuestAlias } from "@/lib/utils";
 import type { PresenceMember, RoomDTO } from "@/shared/ws-contract";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +48,7 @@ export function ChatWorkspace({
 }: ChatWorkspaceProps) {
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
+  const { t } = useLocale();
   const [activeSlug, setActiveSlug] = useState<string>(initialRoomSlug);
   const [clientId, setClientId] = useState("");
   const [alias, setAlias] = useState("");
@@ -174,7 +177,7 @@ export function ChatWorkspace({
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            aria-label="Abrir menú de salas"
+            aria-label={t.openRoomsMenu}
             onClick={() => setDrawerOpen((prev) => !prev)}
             className="inline-flex rounded-lg border border-zinc-700 p-1.5 text-zinc-300 hover:bg-zinc-800 lg:hidden"
           >
@@ -200,6 +203,7 @@ export function ChatWorkspace({
 
         <div className="flex flex-wrap items-center gap-2">
           <HealthBadge />
+          <LanguageToggle />
 
           <button
             type="button"
@@ -212,9 +216,7 @@ export function ChatWorkspace({
           >
             <Columns2 className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">
-              {splitPreview
-                ? "Cerrar vista dividida"
-                : "Vista dividida (2 clientes)"}
+              {splitPreview ? t.closeSplitView : t.splitView}
             </span>
             <span className="sm:hidden">Split</span>
           </button>
@@ -225,7 +227,7 @@ export function ChatWorkspace({
             className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 font-mono text-xs text-emerald-300 transition hover:bg-emerald-500/20"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            <span>Abrir vista espejo / segunda pestaña</span>
+            <span>{t.openSecondTab}</span>
           </button>
         </div>
       </header>
@@ -234,7 +236,7 @@ export function ChatWorkspace({
         {drawerOpen && (
           <button
             type="button"
-            aria-label="Cerrar menú de salas"
+            aria-label={t.closeRoomsMenu}
             className="fixed inset-0 z-20 bg-black/60 lg:hidden"
             onClick={() => setDrawerOpen(false)}
           />
@@ -250,7 +252,7 @@ export function ChatWorkspace({
               htmlFor="sidebar-alias"
               className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-zinc-400"
             >
-              Tu alias (sessionStorage)
+              {t.yourAlias}
             </label>
             <input
               id="sidebar-alias"
@@ -268,7 +270,7 @@ export function ChatWorkspace({
           <div className="flex-1 space-y-5 overflow-y-auto p-4">
             <div>
               <h3 className="mb-2 font-mono text-[11px] uppercase tracking-wider text-zinc-400">
-                Salas públicas ({rooms.length})
+                {t.publicRooms} ({rooms.length})
               </h3>
               <ul className="space-y-1">
                 {rooms.map((room) => {
@@ -301,7 +303,7 @@ export function ChatWorkspace({
                   value={newRoomName}
                   maxLength={32}
                   onChange={(e) => setNewRoomName(e.target.value)}
-                  placeholder="Nueva sala (ej. qa)"
+                  placeholder={t.newRoomPlaceholder}
                   className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-2.5 py-1.5 font-mono text-xs text-zinc-200 outline-none focus:border-emerald-500"
                 />
                 <button
@@ -310,7 +312,7 @@ export function ChatWorkspace({
                     createRoomMutation.isPending ||
                     newRoomName.trim().length < 2
                   }
-                  title="Crear sala"
+                  title={t.createRoomTitle}
                   className="rounded-lg border border-zinc-700 bg-zinc-800 px-2 py-1.5 text-zinc-200 hover:border-emerald-500/60 disabled:opacity-40"
                 >
                   <Plus className="h-4 w-4" />
@@ -325,7 +327,7 @@ export function ChatWorkspace({
               <div className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-zinc-400">
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="h-3.5 w-3.5" />
-                  Presencia en #{activeRoom.slug}
+                  {t.presenceIn} #{activeRoom.slug}
                 </span>
                 <span>{presenceMembers.length}</span>
               </div>
@@ -354,7 +356,7 @@ export function ChatWorkspace({
                     </span>
                     {member.clientId === clientId && (
                       <span className="font-mono text-[10px] text-emerald-400">
-                        tú
+                        {t.you}
                       </span>
                     )}
                   </li>
@@ -372,12 +374,12 @@ export function ChatWorkspace({
               roomDescription={activeRoom.description}
               clientId={clientId}
               alias={alias}
-              label={splitPreview ? "Cliente A" : undefined}
+              label={splitPreview ? t.clientA : undefined}
               onPresenceChange={handlePresenceChange}
             />
           ) : (
             <div className="flex flex-1 items-center justify-center font-mono text-xs text-zinc-500">
-              Inicializando sesión WS...
+              {t.initializingWs}
             </div>
           )}
 
@@ -387,7 +389,7 @@ export function ChatWorkspace({
               roomName={activeRoom.name}
               clientId={mirrorClientId}
               alias={mirrorAlias}
-              label="Cliente B (Espejo)"
+              label={t.clientBMirror}
               compact
             />
           )}

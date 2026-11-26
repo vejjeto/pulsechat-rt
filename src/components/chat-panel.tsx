@@ -1,6 +1,7 @@
 "use client";
 
 import { type UiMessage, useSyncChat } from "@/hooks/use-sync-chat";
+import { useLocale } from "@/lib/i18n";
 import { formatMessageTime } from "@/lib/utils";
 import type { PresenceMember, TypingUser } from "@/shared/ws-contract";
 import { ArrowUp, Bot, Check, Clock, Loader2, Send, Users } from "lucide-react";
@@ -24,25 +25,37 @@ interface ChatPanelProps {
   onPresenceChange?: (members: PresenceMember[]) => void;
 }
 
-function formatTypingLabel(typingUsers: TypingUser[]): string | null {
+function formatTypingLabel(
+  typingUsers: TypingUser[],
+  singular: string,
+  plural: string,
+): string | null {
   if (typingUsers.length === 0) {
     return null;
   }
   const first = typingUsers[0];
   if (typingUsers.length === 1 && first) {
-    return `${first.alias} está escribiendo...`;
+    return `${first.alias} ${singular}`;
   }
-  return `${typingUsers.map((u) => u.alias).join(", ")} están escribiendo...`;
+  return `${typingUsers.map((u) => u.alias).join(", ")} ${plural}`;
 }
 
 function DeliveryIndicator({
   status,
-}: { status?: UiMessage["deliveryStatus"] }) {
+  sendingTitle,
+  failedLabel,
+  confirmedTitle,
+}: {
+  status?: UiMessage["deliveryStatus"];
+  sendingTitle: string;
+  failedLabel: string;
+  confirmedTitle: string;
+}) {
   if (status === "sending") {
     return (
       <span
         className="inline-flex items-center gap-1 text-zinc-400"
-        title="Enviando..."
+        title={sendingTitle}
       >
         <Clock className="h-3 w-3" />
         <span>sending</span>
@@ -50,12 +63,12 @@ function DeliveryIndicator({
     );
   }
   if (status === "failed") {
-    return <span className="text-rose-400">falló</span>;
+    return <span className="text-rose-400">{failedLabel}</span>;
   }
   return (
     <span
       className="inline-flex items-center gap-0.5 text-emerald-400"
-      title="Confirmado (message:ack)"
+      title={confirmedTitle}
     >
       <Check className="h-3 w-3" />
       <span>sent</span>
@@ -73,6 +86,7 @@ export function ChatPanel({
   compact = false,
   onPresenceChange,
 }: ChatPanelProps) {
+  const { t } = useLocale();
   const {
     status,
     reconnectAttempt,
@@ -156,7 +170,11 @@ export function ChatPanel({
     setDraft("");
   };
 
-  const typingText = formatTypingLabel(typingUsers);
+  const typingText = formatTypingLabel(
+    typingUsers,
+    t.typingSingular,
+    t.typingPlural,
+  );
 
   return (
     <section className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-zinc-950">
@@ -214,11 +232,7 @@ export function ChatPanel({
               ) : (
                 <ArrowUp className="h-3.5 w-3.5" />
               )}
-              <span>
-                {isLoadingOlder
-                  ? "Cargando historial..."
-                  : "Cargar mensajes anteriores"}
-              </span>
+              <span>{isLoadingOlder ? t.loadingOlder : t.loadOlder}</span>
             </button>
           </div>
         )}
@@ -226,12 +240,11 @@ export function ChatPanel({
         {isLoadingInitial ? (
           <div className="flex items-center justify-center py-12 font-mono text-xs text-zinc-500">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Cargando mensajes de #{roomSlug}...
+            {t.loadingMessages} #{roomSlug}...
           </div>
         ) : messages.length === 0 ? (
           <div className="rounded-xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-500">
-            No hay mensajes en #{roomSlug} todavía. Envía el primero para probar
-            el flujo WS.
+            {t.noMessagesPrefix} #{roomSlug} {t.noMessagesSuffix}
           </div>
         ) : (
           messages.map((msg) => {
@@ -270,7 +283,12 @@ export function ChatPanel({
                   </p>
                   {isOwn && (
                     <div className="mt-1 flex justify-end font-mono text-[10px]">
-                      <DeliveryIndicator status={msg.deliveryStatus} />
+                      <DeliveryIndicator
+                        status={msg.deliveryStatus}
+                        sendingTitle={t.sendingTitle}
+                        failedLabel={t.failed}
+                        confirmedTitle={t.confirmedTitle}
+                      />
                     </div>
                   )}
                 </div>
@@ -295,7 +313,7 @@ export function ChatPanel({
               setDraft(e.target.value);
               notifyTyping(e.target.value.trim().length > 0);
             }}
-            placeholder={`Escribe en #${roomSlug} como ${alias}...`}
+            placeholder={`${t.messagePlaceholderPrefix} #${roomSlug} ${t.messagePlaceholderAs} ${alias}...`}
             className="flex-1 rounded-xl border border-zinc-700 bg-zinc-950 px-3.5 py-2.5 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-emerald-500"
           />
           <button
@@ -304,7 +322,7 @@ export function ChatPanel({
             className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
-            <span className="hidden sm:inline">Enviar</span>
+            <span className="hidden sm:inline">{t.send}</span>
           </button>
         </form>
       </div>

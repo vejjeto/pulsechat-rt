@@ -7,6 +7,7 @@ import { createDatabase, ensureDemoData } from "@/db";
 import { calculateBackoffDelay } from "@/lib/backoff";
 import { createMessage, getRoomMessages, listRooms } from "@/lib/chat-service";
 import { parseEnv } from "@/lib/env";
+import { TRANSLATIONS } from "@/lib/i18n";
 import { HealthResponseSchema } from "@/lib/openapi";
 import { ProblemDetailsSchema } from "@/lib/problem-details";
 import { generateSyncBotReply, shouldSyncBotRespond } from "@/lib/syncbot";
@@ -608,5 +609,24 @@ describe("Environment, Health, OpenAPI & RFC 7807 Problem Details", () => {
       "application/problem+json",
     );
     expect(badCursorRes.headers.get("x-request-id")).toBe("req-bad-cursor");
+  });
+});
+
+describe("i18n Dictionary Parity", () => {
+  it("keeps identical keys and non-empty values between es and en locales", () => {
+    const esKeys = Object.keys(TRANSLATIONS.es).sort();
+    const enKeys = Object.keys(TRANSLATIONS.en).sort();
+    expect(esKeys).toEqual(enKeys);
+    expect(esKeys.length).toBeGreaterThan(20);
+
+    for (const key of esKeys) {
+      const k = key as keyof typeof TRANSLATIONS.es;
+      expect(TRANSLATIONS.es[k].trim().length).toBeGreaterThan(0);
+      expect(TRANSLATIONS.en[k].trim().length).toBeGreaterThan(0);
+    }
+
+    expect(TRANSLATIONS.es.enterGuestSandbox).toBe(
+      "Entrar como Invitado a Sala Sandbox",
+    );
   });
 });

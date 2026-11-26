@@ -1,6 +1,7 @@
 "use client";
 
 import type { ConnectionStatus } from "@/hooks/use-sync-chat";
+import { type TranslationKey, useLocale } from "@/lib/i18n";
 import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 
 interface ConnectionBadgeProps {
@@ -15,22 +16,22 @@ interface ConnectionBadgeProps {
 
 const STATUS_STYLE: Record<
   ConnectionStatus,
-  { dot: string; badge: string; label: string }
+  { dot: string; badge: string; labelKey: TranslationKey }
 > = {
   connected: {
     dot: "bg-emerald-400",
     badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-    label: "Conectado",
+    labelKey: "connected",
   },
   reconnecting: {
     dot: "bg-amber-400 animate-pulse",
     badge: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-    label: "Reconectando...",
+    labelKey: "reconnecting",
   },
   disconnected: {
     dot: "bg-rose-500",
     badge: "border-rose-500/30 bg-rose-500/10 text-rose-300",
-    label: "Sin conexión",
+    labelKey: "disconnected",
   },
 };
 
@@ -43,6 +44,7 @@ export function ConnectionBadge({
   onReconnect,
   compact = false,
 }: ConnectionBadgeProps) {
+  const { t } = useLocale();
   const style = STATUS_STYLE[status];
 
   return (
@@ -52,7 +54,7 @@ export function ConnectionBadge({
         className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs ${style.badge}`}
       >
         <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-        <span>{style.label}</span>
+        <span>{t[style.labelKey]}</span>
         {status === "connected" && latencyMs !== null && !compact && (
           <span className="text-emerald-400/80">· {latencyMs}ms</span>
         )}
@@ -71,7 +73,7 @@ export function ConnectionBadge({
           className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 py-1 font-mono text-xs text-zinc-300 transition hover:border-rose-500/50 hover:text-rose-300"
         >
           <WifiOff className="h-3.5 w-3.5" />
-          <span>{compact ? "Desconectar" : "Simular desconexión"}</span>
+          <span>{compact ? t.disconnectShort : t.simulateDisconnect}</span>
         </button>
       ) : (
         <button
@@ -84,7 +86,7 @@ export function ConnectionBadge({
           ) : (
             <Wifi className="h-3.5 w-3.5" />
           )}
-          <span>Reconectar</span>
+          <span>{t.reconnect}</span>
         </button>
       )}
     </div>
